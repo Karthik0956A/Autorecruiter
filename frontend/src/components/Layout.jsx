@@ -1,7 +1,23 @@
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 const Layout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [userName, setUserName] = useState('Recruiter');
+
+  useEffect(() => {
+    // Get user info from localStorage
+    const user = localStorage.getItem('user');
+    if (user) {
+      try {
+        const userData = JSON.parse(user);
+        setUserName(userData.name || 'Recruiter');
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, []);
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: '📊' },
@@ -12,6 +28,15 @@ const Layout = () => {
 
   const isActive = (path) => {
     return location.pathname === path;
+  };
+
+  const handleLogout = () => {
+    // Clear authentication data
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Redirect to login
+    navigate('/login');
   };
 
   return (
@@ -25,8 +50,11 @@ const Layout = () => {
               <h1 className="text-2xl font-bold text-gray-900">TalentSense AI</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, Recruiter</span>
-              <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+              <span className="text-sm text-gray-600">Welcome, {userName}</span>
+              <button 
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              >
                 Logout
               </button>
             </div>
